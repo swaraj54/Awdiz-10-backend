@@ -8,6 +8,7 @@ const http = require("http");
 // backend -> frontend -> response
 
 const server = http.createServer((req, res) => {
+  console.log("inside server.", req, "req");
   if (req.method == "GET" && req.url == "/books") {
     console.log("Inside if.");
     res.end("My books.");
@@ -16,7 +17,7 @@ const server = http.createServer((req, res) => {
     res.end("My products.");
   } else {
     console.log("Inside else.");
-    res.end("Not books url.");
+    res.end("Url not found.");
   }
 });
 

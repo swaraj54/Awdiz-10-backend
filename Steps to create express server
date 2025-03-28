@@ -1,0 +1,17 @@
+1. Use command npm init 
+its create package.json
+
+2. Create index.js file
+
+3. Write "start" script with "node index.js"
+
+4. change type to "module", we'll use es 6 syntax
+
+5. install express, by using command npm i express 
+
+6. inside index.js create express structure, 
+build apis and run it on port 8000.
+
+7. start server by using command npm start 
+
+8. use thunder client to call apis to get response
