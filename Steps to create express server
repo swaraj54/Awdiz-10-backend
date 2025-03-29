@@ -1,4 +1,4 @@
-1. Use command npm init 
+1. Use command npm init -y
 its create package.json
 
 2. Create index.js file
@@ -15,3 +15,7 @@ build apis and run it on port 8000.
 7. start server by using command npm start 
 
 8. use thunder client to call apis to get response
+
+
+next lecture - Mvc structure 
+next to next lecture - Mongodb
