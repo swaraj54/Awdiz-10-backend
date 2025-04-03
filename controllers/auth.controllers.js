@@ -10,7 +10,7 @@ export const Register = (req, res) => {
     if (password !== confirmPassword) {
       return res.send("password not matched");
     }
-    // mongodb
+    // mongodb 
     return res.send("Registrerationc omplted.");
   } catch (error) {
     console.log(error, "error in register api call.");

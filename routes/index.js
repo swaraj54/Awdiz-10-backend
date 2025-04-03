@@ -14,7 +14,7 @@ export default AllRoutes;
 
 //             /auth
 
-//                         /Login
+//                         /Login      
 //                         /register
 
 //             /product
