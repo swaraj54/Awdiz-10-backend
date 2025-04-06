@@ -1,4 +1,5 @@
 import User from "../models/user.schema.js";
+import bcrypt from "bcrypt";
 
 export const Register = async (req, res) => {
   try {
@@ -23,11 +24,15 @@ export const Register = async (req, res) => {
         message: "Email already taken, please use another one.",
       });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    console.log(password, "password", hashedPassword, "hashedPassword");
     // mongodb
     const newUser = User({
       name: name,
       email: email,
-      password: password,
+      password: hashedPassword,
     });
     console.log(newUser, "newUser");
     const responseFromDatabase = await newUser.save();
@@ -35,15 +40,45 @@ export const Register = async (req, res) => {
     return res.json({ success: true, message: "Registrerationc omplted." });
   } catch (error) {
     console.log(error, "error in register api call.");
-    return res.send(error);
+    return res.json({ success: false, error: error });
   }
 };
 
-export const Login = (req, res) => {
+export const Login = async (req, res) => {
   try {
-    return res.send("Login");
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.json({ success: false, message: "All fields are mandatory." });
+    }
+    const isUserExists = await User.findOne({ email: email });
+    console.log(isUserExists, "isUserExists");
+    if (!isUserExists) {
+      return res.json({ success: false, message: "Email is wrong." });
+    }
+    console.log(
+      password,
+      "req.body.password",
+      isUserExists.password,
+      "isUserExists.password"
+    );
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      isUserExists.password
+    );
+    console.log(isPasswordCorrect, "isPasswordCorrect");
+    if (!isPasswordCorrect) {
+      return res.json({ success: false, message: "Password is wrong." });
+    }
+    return res.json({
+      success: true,
+      message: "Login successfull.",
+      userData: {
+        user: { name: isUserExists.name, phone: isUserExists.phone },
+        token: "abc",
+      },
+    });
   } catch (error) {
     console.log(error, "error in register api call.");
-    return res.send(error);
+    return res.json({ success: false, error: error });
   }
 };
