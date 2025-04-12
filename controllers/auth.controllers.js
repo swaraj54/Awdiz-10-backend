@@ -1,5 +1,6 @@
 import User from "../models/user.schema.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const Register = async (req, res) => {
   try {
@@ -69,12 +70,44 @@ export const Login = async (req, res) => {
     if (!isPasswordCorrect) {
       return res.json({ success: false, message: "Password is wrong." });
     }
+    const jwtToken = jwt.sign(
+      { userId: isUserExists._id },
+      process.env.TOKENSECRETKEY
+    );
+    console.log(jwtToken, "jwtToken");
+
     return res.json({
       success: true,
       message: "Login successfull.",
       userData: {
         user: { name: isUserExists.name, phone: isUserExists.phone },
-        token: "abc",
+        token: jwtToken,
+      },
+    });
+  } catch (error) {
+    console.log(error, "error in register api call.");
+    return res.json({ success: false, error: error });
+  }
+};
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.json({ success: false });
+    }
+    const tokenData = jwt.verify(token, process.env.TOKENSECRETKEY);
+    if (!tokenData) {
+      return res.json({ success: false });
+    }
+    const isUserExists = await User.findById(tokenData.userId);
+    if (!isUserExists) {
+      return res.json({ success: false });
+    }
+    return res.json({
+      success: true,
+      userData: {
+        user: { name: isUserExists.name, phone: isUserExists.phone },
       },
     });
   } catch (error) {
