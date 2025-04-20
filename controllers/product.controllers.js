@@ -26,6 +26,13 @@ export const AddProduct = async (req, res) => {
         message: "You are not seller to add product.",
       });
     }
+    const isProductExists = await Product.findOne({ name });
+    if (isProductExists) {
+      return res.json({
+        success: false,
+        message: "Product name already exists, please use another one.",
+      });
+    }
     const newProduct = Product({
       name,
       price,
@@ -57,7 +64,45 @@ export const AddedProducts = async (req, res) => {
     console.log(products, "products");
 
     return res.json({
-      products : products,
+      products: products,
+      success: true,
+      message: "Product successfully fetched.",
+    });
+  } catch (error) {
+    console.log(error, "error in register api call.");
+    return res.json({ success: false, error });
+  }
+};
+
+export const AllProducts = async (req, res) => {
+  try {
+    const products = await Product.find({});
+
+    return res.json({
+      products: products,
+      success: true,
+      message: "Product successfully fetched.",
+    });
+  } catch (error) {
+    console.log(error, "error in register api call.");
+    return res.json({ success: false, error });
+  }
+};
+
+export const SingleProductData = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    if (!productId) {
+      return res.json({
+        success: false,
+        message: "Product id is requied.",
+      });
+    }
+
+    const product = await Product.findById(productId).populate("userId");
+
+    return res.json({
+      productData: product,
       success: true,
       message: "Product successfully fetched.",
     });
