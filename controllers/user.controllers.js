@@ -1,6 +1,7 @@
 import User from "./../models/user.schema.js";
 import Product from "./../models/product.schema.js";
 import Cart from "../models/cart.schema.js";
+import Order from "../models/order.schema.js";
 export const addToCart = async (req, res) => {
   try {
     const { productId, userId } = req.body;
@@ -70,6 +71,68 @@ export const getCartProducts = async (req, res) => {
       totalPrice: totalPrice,
       success: true,
       products: cartUserData.products,
+    });
+  } catch (error) {
+    return res.json({ success: false, error });
+  }
+};
+
+export const checkout = async (req, res) => {
+  try {
+    const { userId, products } = req.body;
+    if (!userId) {
+      return res.json({ success: false, message: "User is required." });
+    }
+    if (!products || products.length == 0) {
+      return res.json({ success: false, message: "Produsts is required." });
+    }
+    const isUserExists = await User.findById(userId);
+    if (!isUserExists) {
+      return res.json({ success: false, message: "User not found." });
+    }
+    let allProductsIds = [];
+    let totalPrice = 0;
+    for (let i = 0; i < products.length; i++) {
+      allProductsIds.push(products[i]._id);
+      totalPrice += products[i].price;
+    }
+    const newOrder = Order({
+      userId,
+      products: allProductsIds,
+      price: totalPrice,
+    });
+
+    console.log(newOrder, "newOrder");
+    await newOrder.save();
+
+    await Cart.findOneAndUpdate({ userId }, { products: [] });
+
+    return res.json({
+      success: true,
+      message: "Order Successfull, you'll get product deliver soon.",
+    });
+  } catch (error) {
+    console.log(error, "error");
+    return res.json({ success: false, error });
+  }
+};
+
+export const getOrderHistory = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.json({ success: false, message: "User is required." });
+    }
+    const ordersUserData = await Order.find({ userId }).populate("products");
+    if (ordersUserData?.length == 0) {
+      return res.json({
+        success: false,
+        message: "No orders found.",
+      });
+    }
+    return res.json({
+      success: true,
+      orders: ordersUserData,
     });
   } catch (error) {
     return res.json({ success: false, error });
