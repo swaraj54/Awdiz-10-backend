@@ -15,6 +15,7 @@ const corsOptions = {
   origin: "https://awdiz-10-react.vercel.app",
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
