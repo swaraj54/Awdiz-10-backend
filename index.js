@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(morgan("combined"));
 dotenv.config();
 const corsOptions = {
-  origin: ["https://awdiz-10-react.vercel.app", "http://localhost:3000"],
+  origin: "https://awdiz-10-react.vercel.app",
   credentials: true,
 };
 app.use(cors(corsOptions));

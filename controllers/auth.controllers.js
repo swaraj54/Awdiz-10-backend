@@ -77,7 +77,11 @@ export const Login = async (req, res) => {
     );
     console.log(jwtToken, "jwtToken");
 
-    res.cookie("token", jwtToken);
+    res.cookie("token", jwtToken, {
+      httpOnly: true,
+      secure: true, // Required for cross-site cookies
+      sameSite: "None", // Required for cross-site cookies
+    });
 
     return res.json({
       success: true,
