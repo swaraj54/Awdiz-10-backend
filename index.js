@@ -11,7 +11,10 @@ const app = express();
 app.use(express.json());
 app.use(morgan("combined"));
 dotenv.config();
-const corsOptions = { origin: ["http://localhost:3000"], credentials: true };
+const corsOptions = {
+  origin: ["http://localhost:3000", "https://awdiz-10-react.vercel.app"],
+  credentials: true,
+};
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
