@@ -7,10 +7,11 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import http from "http";
+import User from "./models/user.schema.js";
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     // origin: "https://awdiz-10-react.vercel.app",
     origin: "http://localhost:3000",
@@ -18,14 +19,34 @@ const io = new Server(server, {
   },
 });
 
+// storing locally
+export const sellersSockets = new Map(); // {"seller id" : "socket id"}
+
 io.on("connection", (socket) => {
-  console.log("Socket Server connected",  socket.id);
+  console.log("Socket Server connected", socket.id);
+
+  socket.on("registerSeller", async (userData) => {
+    console.log("registerSeller got");
+    const isSellerExist = await User.findById(userData.userId);
+    if (isSellerExist) {
+      sellersSockets.set(userData.userId, socket.id);
+      console.log(userData.userId, socket.id, "set");
+    }
+  });
+
   socket.on("send_message", (data) => {
     console.log("Message recevied", data);
     io.emit("receive_message", { data });
   });
   socket.on("disconnect", () => {
     console.log("User disconnected.");
+    for (let [sellerId, socketId] of sellersSockets.entries()) {
+      if (socketId == socket.id) {
+        sellersSockets.delete(sellerId);
+        console.log("Connection closed for", sellerId);
+        break;
+      }
+    }
   });
 });
 

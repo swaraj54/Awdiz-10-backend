@@ -2,6 +2,7 @@ import User from "./../models/user.schema.js";
 import Product from "./../models/product.schema.js";
 import Cart from "../models/cart.schema.js";
 import Order from "../models/order.schema.js";
+import { io, sellersSockets } from "../index.js";
 export const addToCart = async (req, res) => {
   try {
     const { productId, userId } = req.body;
@@ -92,10 +93,25 @@ export const checkout = async (req, res) => {
     }
     let allProductsIds = [];
     let totalPrice = 0;
+
+    // let allSellersId = [];
+
     for (let i = 0; i < products.length; i++) {
       allProductsIds.push(products[i]._id);
       totalPrice += products[i].price;
+
+      const productData = await Product.findById(products[i]._id);
+      // allSellersId.push(productData.userId);
+      const sellerSocketIdFound = sellersSockets.get(productData.userId);
+      if (sellerSocketIdFound) {
+        io.to(sellerSocketIdFound).emit("productBuy", {
+          buyerName: isUserExists.name,
+          productData: productData,
+        });
+        // mongodb -> notification schema 
+      }
     }
+
     const newOrder = Order({
       userId,
       products: allProductsIds,
