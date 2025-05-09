@@ -5,6 +5,7 @@ import Order from "../models/order.schema.js";
 import { io, sellersSockets } from "../index.js";
 export const addToCart = async (req, res) => {
   try {
+    console.log("addtocart inside.")
     const { productId, userId } = req.body;
     if (!userId) {
       return res.json({ success: false, message: "User is required." });
@@ -46,6 +47,7 @@ export const addToCart = async (req, res) => {
       message: "Product successfully added to cart.",
     });
   } catch (error) {
+    console.log(error,"error in addto cart api")
     return res.json({ success: false, error });
   }
 };
@@ -102,7 +104,9 @@ export const checkout = async (req, res) => {
 
       const productData = await Product.findById(products[i]._id);
       // allSellersId.push(productData.userId);
-      const sellerSocketIdFound = sellersSockets.get(productData.userId);
+      console.log(sellersSockets,"sellersSockets",productData.userId,"productData.userId")
+      const sellerSocketIdFound = sellersSockets.get(productData.userId.toString());
+      console.log(sellerSocketIdFound,"sellerSocketIdFound")
       if (sellerSocketIdFound) {
         io.to(sellerSocketIdFound).emit("productBuy", {
           buyerName: isUserExists.name,

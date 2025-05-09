@@ -31,6 +31,7 @@ io.on("connection", (socket) => {
     if (isSellerExist) {
       sellersSockets.set(userData.userId, socket.id);
       console.log(userData.userId, socket.id, "set");
+      console.log(sellersSockets,"sellersSockets")
     }
   });
 
